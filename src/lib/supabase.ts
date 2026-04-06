@@ -1,0 +1,10 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = 'https://ndlyksrfwivhpkguvgmb.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kbHlrc3Jmd2l2aHBrZ3V2Z21iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzNDY0MTQsImV4cCI6MjA5MDkyMjQxNH0.Po_BIcn7SEkAaTqOcgBNFFQje3VD_oJilyWxhZ5_650';
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Admin-only client (you'll need to use service role key for admin operations)
+// For now, we'll use the anon key with proper RLS policies
+export const adminSupabase = supabase;
