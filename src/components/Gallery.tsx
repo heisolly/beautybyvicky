@@ -56,8 +56,6 @@ const Gallery: React.FC = () => {
         { id: '5', title: 'Editorial Bold', image_url: '/hero-model.png', category: 'editorial' },
         { id: '6', title: 'Photoshoot Ready', image_url: '/hero.jpg', category: 'photoshoot' }
       ]);
-    } finally {
-      setLoading(false);
     }
   };
 
