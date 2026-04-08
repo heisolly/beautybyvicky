@@ -2,25 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { 
-  Users, 
   Calendar, 
   MessageSquare, 
-  Star, 
   Image, 
-  HelpCircle, 
-  Mail, 
   Settings, 
   LogOut,
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
+  Menu,
+  X,
   TrendingUp,
   DollarSign,
-  Clock
+  Clock,
+  RefreshCw
 } from 'lucide-react';
 import ServicesManager from './admin/ServicesManager';
 import BookingsManager from './admin/BookingsManager';
+import GalleryManager from './admin/GalleryManager';
 
 interface DashboardStats {
   totalBookings: number;
@@ -28,25 +24,21 @@ interface DashboardStats {
   totalRevenue: number;
   totalClients: number;
   portfolioItems: number;
-  testimonials: number;
   unreadMessages: number;
-  subscribers: number;
 }
 
 const AdminDashboard: React.FC = () => {
   const { admin, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [stats, setStats] = useState<DashboardStats>({
     totalBookings: 0,
     pendingBookings: 0,
     totalRevenue: 0,
     totalClients: 0,
     portfolioItems: 0,
-    testimonials: 0,
     unreadMessages: 0,
-    subscribers: 0,
   });
-  const [data, setData] = useState<any>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,31 +47,28 @@ const AdminDashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
-      // Fetch all data
+      setLoading(true);
+      
+      // Fetch essential data only
       const [
         bookingsResult,
-        servicesResult,
         portfolioResult,
-        testimonialsResult,
-        contactResult,
-        subscribersResult
+        contactResult
       ] = await Promise.all([
-        supabase.from('bookings').select('*'),
-        supabase.from('services').select('*'),
+        supabase.from('bookings').select('*').order('created_at', { ascending: false }),
         supabase.from('portfolio_items').select('*'),
-        supabase.from('testimonials').select('*'),
-        supabase.from('contact_submissions').select('*'),
-        supabase.from('newsletter_subscribers').select('*')
+        supabase.from('contact_submissions').select('*').order('created_at', { ascending: false })
       ]);
 
-      const bookings = bookingsResult.data || [];
-      const services = servicesResult.data || [];
-      const portfolio = portfolioResult.data || [];
-      const testimonials = testimonialsResult.data || [];
-      const contacts = contactResult.data || [];
-      const subscribers = subscribersResult.data || [];
+      if (bookingsResult.error) throw bookingsResult.error;
+      if (portfolioResult.error) throw portfolioResult.error;
+      if (contactResult.error) throw contactResult.error;
 
-      // Calculate stats
+      const bookings = bookingsResult.data || [];
+      const portfolio = portfolioResult.data || [];
+      const contacts = contactResult.data || [];
+
+      // Calculate essential stats
       const totalRevenue = bookings
         .filter(b => b.status === 'completed')
         .reduce((sum, b) => sum + (b.total_amount || 0), 0);
@@ -92,18 +81,7 @@ const AdminDashboard: React.FC = () => {
         totalRevenue,
         totalClients: uniqueClients,
         portfolioItems: portfolio.length,
-        testimonials: testimonials.length,
         unreadMessages: contacts.filter(c => c.status === 'new').length,
-        subscribers: subscribers.length,
-      });
-
-      setData({
-        bookings,
-        services,
-        portfolio,
-        testimonials,
-        contacts,
-        subscribers
       });
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -112,165 +90,130 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const StatCard: React.FC<{ title: string; value: string | number; icon: React.ReactNode; color: string }> = ({ title, value, icon, color }) => (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex items-center">
-        <div className={`p-3 rounded-full ${color}`}>
-          {icon}
+  interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ReactNode;
+  color: string;
+  change?: string;
+}
+
+  const StatCard = ({ title, value, icon, color, change }: StatCardProps) => (
+    <div className={`${color} rounded-2xl p-4 md:p-6 text-white`}>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs md:text-sm font-medium opacity-90 font-outfit">{title}</p>
+          <p className="text-2xl md:text-3xl font-bold font-outfit">{value}</p>
+          {change && <p className="text-xs md:text-sm opacity-75 font-outfit">{change}</p>}
         </div>
-        <div className="ml-4">
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-semibold text-gray-900">{value}</p>
+        <div className="opacity-80">
+          {icon}
         </div>
       </div>
     </div>
   );
 
   const renderDashboard = () => (
-    <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard Overview</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-4 sm:space-y-0">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-bold text-vicky-primary font-outfit">Dashboard</h2>
+          <p className="text-sm md:text-base text-vicky-primary/60 font-outfit">Welcome back, {admin?.name}</p>
+        </div>
+        <button
+          onClick={fetchDashboardData}
+          className="flex items-center space-x-2 bg-vicky-accent text-white px-4 py-2 rounded-xl font-bold font-outfit hover:bg-vicky-primary transition-all text-sm md:text-base"
+        >
+          <RefreshCw className="w-4 h-4" />
+          <span className="hidden sm:inline">Refresh</span>
+        </button>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           title="Total Bookings"
           value={stats.totalBookings}
-          icon={<Calendar className="h-6 w-6 text-white" />}
-          color="bg-blue-500"
+          icon={<Calendar className="h-6 w-6 md:h-8 md:w-8" />}
+          color="bg-vicky-accent"
+          change="This month"
         />
         <StatCard
-          title="Pending Bookings"
+          title="Pending"
           value={stats.pendingBookings}
-          icon={<Clock className="h-6 w-6 text-white" />}
-          color="bg-yellow-500"
+          icon={<Clock className="h-6 w-6 md:h-8 md:w-8" />}
+          color="bg-orange-500"
+          change="Action needed"
         />
         <StatCard
-          title="Total Revenue"
-          value={`$${stats.totalRevenue.toFixed(2)}`}
-          icon={<DollarSign className="h-6 w-6 text-white" />}
-          color="bg-green-500"
+          title="Revenue"
+          value={`₦${stats.totalRevenue.toLocaleString()}`}
+          icon={<DollarSign className="h-6 w-6 md:h-8 md:w-8" />}
+          color="bg-green-600"
+          change="Total earned"
         />
         <StatCard
-          title="Total Clients"
+          title="Clients"
           value={stats.totalClients}
-          icon={<Users className="h-6 w-6 text-white" />}
-          color="bg-purple-500"
+          icon={<TrendingUp className="h-6 w-6 md:h-8 md:w-8" />}
+          color="bg-blue-600"
+          change="Unique clients"
         />
         <StatCard
-          title="Portfolio Items"
+          title="Gallery"
           value={stats.portfolioItems}
-          icon={<Image className="h-6 w-6 text-white" />}
-          color="bg-pink-500"
+          icon={<Image className="h-6 w-6 md:h-8 md:w-8" />}
+          color="bg-purple-600"
+          change="Portfolio items"
         />
         <StatCard
-          title="Testimonials"
-          value={stats.testimonials}
-          icon={<Star className="h-6 w-6 text-white" />}
-          color="bg-indigo-500"
-        />
-        <StatCard
-          title="Unread Messages"
+          title="Messages"
           value={stats.unreadMessages}
-          icon={<MessageSquare className="h-6 w-6 text-white" />}
-          color="bg-red-500"
-        />
-        <StatCard
-          title="Newsletter Subscribers"
-          value={stats.subscribers}
-          icon={<Mail className="h-6 w-6 text-white" />}
-          color="bg-teal-500"
+          icon={<MessageSquare className="h-6 w-6 md:h-8 md:w-8" />}
+          color="bg-red-600"
+          change="Unread"
         />
       </div>
 
-      {/* Recent Bookings */}
-      <div className="bg-white rounded-lg shadow mb-8">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Recent Bookings</h3>
+      {/* Quick Actions */}
+      <div className="bg-white rounded-2xl shadow-lg p-6">
+        <h3 className="text-lg font-bold text-vicky-primary font-outfit mb-4">Quick Actions</h3>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => setActiveTab('bookings')}
+            className="flex flex-col items-center justify-center p-4 bg-vicky-accent/10 rounded-xl hover:bg-vicky-accent/20 transition-all"
+          >
+            <Calendar className="w-6 h-6 text-vicky-accent mb-2" />
+            <span className="text-sm font-bold text-vicky-primary font-outfit">View Bookings</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('services')}
+            className="flex flex-col items-center justify-center p-4 bg-vicky-accent/10 rounded-xl hover:bg-vicky-accent/20 transition-all"
+          >
+            <Settings className="w-6 h-6 text-vicky-accent mb-2" />
+            <span className="text-sm font-bold text-vicky-primary font-outfit">Manage Services</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('portfolio')}
+            className="flex flex-col items-center justify-center p-4 bg-vicky-accent/10 rounded-xl hover:bg-vicky-accent/20 transition-all"
+          >
+            <Image className="w-6 h-6 text-vicky-accent mb-2" />
+            <span className="text-sm font-bold text-vicky-primary font-outfit">Update Gallery</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('messages')}
+            className="flex flex-col items-center justify-center p-4 bg-vicky-accent/10 rounded-xl hover:bg-vicky-accent/20 transition-all relative"
+          >
+            <MessageSquare className="w-6 h-6 text-vicky-accent mb-2" />
+            <span className="text-sm font-bold text-vicky-primary font-outfit">Messages</span>
+            {stats.unreadMessages > 0 && (
+              <span className="absolute top-2 right-2 w-5 h-5 bg-red-600 text-white rounded-full text-xs font-bold flex items-center justify-center">
+                {stats.unreadMessages}
+              </span>
+            )}
+          </button>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {data.bookings?.slice(0, 5).map((booking: any) => (
-                <tr key={booking.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {booking.client_name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {data.services?.find((s: any) => s.id === booking.service_id)?.name || 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {booking.date}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      booking.status === 'completed' ? 'bg-green-100 text-green-800' :
-                      booking.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
-                      booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {booking.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${booking.total_amount || '0'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderPortfolio = () => (
-    <div className="space-y-6">
-      <h3 className="text-lg font-medium text-gray-900">Portfolio Management</h3>
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600">Portfolio management features coming soon...</p>
-      </div>
-    </div>
-  );
-
-  const renderTestimonials = () => (
-    <div className="space-y-6">
-      <h3 className="text-lg font-medium text-gray-900">Testimonials Management</h3>
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600">Testimonials management features coming soon...</p>
-      </div>
-    </div>
-  );
-
-  const renderMessages = () => (
-    <div className="space-y-6">
-      <h3 className="text-lg font-medium text-gray-900">Contact Messages</h3>
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600">Message management features coming soon...</p>
-      </div>
-    </div>
-  );
-
-  const renderFAQ = () => (
-    <div className="space-y-6">
-      <h3 className="text-lg font-medium text-gray-900">FAQ Management</h3>
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600">FAQ management features coming soon...</p>
-      </div>
-    </div>
-  );
-
-  const renderNewsletter = () => (
-    <div className="space-y-6">
-      <h3 className="text-lg font-medium text-gray-900">Newsletter Subscribers</h3>
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600">Newsletter management features coming soon...</p>
       </div>
     </div>
   );
@@ -284,157 +227,186 @@ const AdminDashboard: React.FC = () => {
       case 'services':
         return <ServicesManager />;
       case 'portfolio':
-        return renderPortfolio();
-      case 'testimonials':
-        return renderTestimonials();
+        return <GalleryManager />;
       case 'messages':
         return renderMessages();
-      case 'faq':
-        return renderFAQ();
-      case 'newsletter':
-        return renderNewsletter();
       default:
         return renderDashboard();
     }
   };
 
+  const renderMessages = () => (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-4 sm:space-y-0">
+        <div>
+          <h3 className="text-2xl md:text-3xl font-bold text-vicky-primary font-outfit">Messages</h3>
+          <p className="text-sm md:text-base text-vicky-primary/60 font-outfit">Customer inquiries and contact forms</p>
+        </div>
+        {stats.unreadMessages > 0 && (
+          <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold font-outfit">
+            {stats.unreadMessages} Unread
+          </span>
+        )}
+      </div>
+      <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6">
+        <p className="text-vicky-primary/60 font-outfit">Message management features coming soon...</p>
+      </div>
+    </div>
+  );
+
+  const navigationItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
+    { id: 'bookings', label: 'Bookings', icon: Calendar, badge: stats.pendingBookings },
+    { id: 'services', label: 'Services', icon: Settings },
+    { id: 'portfolio', label: 'Gallery', icon: Image },
+    { id: 'messages', label: 'Messages', icon: MessageSquare, badge: stats.unreadMessages },
+  ];
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-500"></div>
+      <div className="min-h-screen bg-vicky-bg flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-vicky-accent border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900">Beauty by Vicky's Admin</h1>
+    <div className="min-h-screen bg-vicky-bg">
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-white shadow-sm border-b border-vicky-primary/10">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-lg hover:bg-vicky-accent/10 transition-colors"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6 text-vicky-primary" /> : <Menu className="w-6 h-6 text-vicky-primary" />}
+            </button>
+            <h1 className="text-lg font-bold text-vicky-primary font-outfit">Admin Panel</h1>
+          </div>
+          <button
+            onClick={logout}
+            className="p-2 rounded-lg hover:bg-vicky-accent/10 transition-colors"
+          >
+            <LogOut className="w-5 h-5 text-vicky-primary" />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setMobileMenuOpen(false)}>
+          <div className="bg-white w-80 h-full shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6 border-b border-vicky-primary/10">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-vicky-accent rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold font-outfit text-lg">
+                    {admin?.name?.charAt(0) || 'A'}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-vicky-primary font-outfit">{admin?.name}</p>
+                  <p className="text-sm text-vicky-primary/60 font-outfit">Administrator</p>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">Welcome, {admin?.name}</span>
+            <nav className="p-4 space-y-2">
+              {navigationItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold font-outfit transition-all duration-300 ${
+                    activeTab === item.id
+                      ? 'bg-vicky-accent text-white shadow-lg'
+                      : 'text-vicky-primary/60 hover:bg-vicky-accent/10 hover:text-vicky-primary'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <item.icon className="w-5 h-5" />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge && item.badge > 0 && (
+                    <span className="bg-red-600 text-white text-xs px-2 py-1 rounded-full">
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              ))}
               <button
                 onClick={logout}
-                className="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600 flex items-center"
+                className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold font-outfit text-red-600 hover:bg-red-50 transition-all duration-300 mt-4"
               >
-                <LogOut className="h-4 w-4 mr-1" />
-                Logout
+                <LogOut className="w-5 h-5" />
+                <span>Logout</span>
               </button>
-            </div>
+            </nav>
           </div>
         </div>
-      </header>
+      )}
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white shadow-md min-h-screen">
-          <nav className="mt-5 px-2">
-            <div className="space-y-1">
+      {/* Desktop Layout */}
+      <div className="hidden lg:flex">
+        {/* Desktop Sidebar */}
+        <div className="w-64 bg-white shadow-lg min-h-screen">
+          <div className="p-6 border-b border-vicky-primary/10">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-vicky-accent rounded-full flex items-center justify-center">
+                <span className="text-white font-bold font-outfit text-lg">
+                  {admin?.name?.charAt(0) || 'A'}
+                </span>
+              </div>
+              <div>
+                <p className="text-lg font-bold text-vicky-primary font-outfit">{admin?.name}</p>
+                <p className="text-sm text-vicky-primary/60 font-outfit">Administrator</p>
+              </div>
+            </div>
+          </div>
+          <nav className="p-4 space-y-2">
+            {navigationItems.map((item) => (
               <button
-                onClick={() => setActiveTab('dashboard')}
-                className={`${
-                  activeTab === 'dashboard'
-                    ? 'bg-pink-100 text-pink-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                } group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full`}
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold font-outfit transition-all duration-300 ${
+                  activeTab === item.id
+                    ? 'bg-vicky-accent text-white shadow-lg'
+                    : 'text-vicky-primary/60 hover:bg-vicky-accent/10 hover:text-vicky-primary'
+                }`}
               >
-                <TrendingUp className="mr-3 h-5 w-5" />
-                Dashboard
-              </button>
-              <button
-                onClick={() => setActiveTab('bookings')}
-                className={`${
-                  activeTab === 'bookings'
-                    ? 'bg-pink-100 text-pink-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                } group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full`}
-              >
-                <Calendar className="mr-3 h-5 w-5" />
-                Bookings
-              </button>
-              <button
-                onClick={() => setActiveTab('services')}
-                className={`${
-                  activeTab === 'services'
-                    ? 'bg-pink-100 text-pink-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                } group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full`}
-              >
-                <Settings className="mr-3 h-5 w-5" />
-                Services
-              </button>
-              <button
-                onClick={() => setActiveTab('portfolio')}
-                className={`${
-                  activeTab === 'portfolio'
-                    ? 'bg-pink-100 text-pink-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                } group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full`}
-              >
-                <Image className="mr-3 h-5 w-5" />
-                Portfolio
-              </button>
-              <button
-                onClick={() => setActiveTab('testimonials')}
-                className={`${
-                  activeTab === 'testimonials'
-                    ? 'bg-pink-100 text-pink-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                } group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full`}
-              >
-                <Star className="mr-3 h-5 w-5" />
-                Testimonials
-              </button>
-              <button
-                onClick={() => setActiveTab('messages')}
-                className={`${
-                  activeTab === 'messages'
-                    ? 'bg-pink-100 text-pink-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                } group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full`}
-              >
-                <MessageSquare className="mr-3 h-5 w-5" />
-                Contact Messages
-                {stats.unreadMessages > 0 && (
-                  <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                    {stats.unreadMessages}
+                <div className="flex items-center space-x-3">
+                  <item.icon className="w-5 h-5" />
+                  <span>{item.label}</span>
+                </div>
+                {item.badge && item.badge > 0 && (
+                  <span className="bg-red-600 text-white text-xs px-2 py-1 rounded-full">
+                    {item.badge}
                   </span>
                 )}
               </button>
+            ))}
+            <div className="pt-4 mt-4 border-t border-vicky-primary/10">
               <button
-                onClick={() => setActiveTab('faq')}
-                className={`${
-                  activeTab === 'faq'
-                    ? 'bg-pink-100 text-pink-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                } group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full`}
+                onClick={logout}
+                className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold font-outfit text-red-600 hover:bg-red-50 transition-all duration-300"
               >
-                <HelpCircle className="mr-3 h-5 w-5" />
-                FAQ
-              </button>
-              <button
-                onClick={() => setActiveTab('newsletter')}
-                className={`${
-                  activeTab === 'newsletter'
-                    ? 'bg-pink-100 text-pink-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                } group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full`}
-              >
-                <Mail className="mr-3 h-5 w-5" />
-                Newsletter
+                <LogOut className="w-5 h-5" />
+                <span>Logout</span>
               </button>
             </div>
           </nav>
-        </aside>
+        </div>
 
-        {/* Main Content */}
-        <main className="flex-1 p-6">
+        {/* Desktop Content */}
+        <div className="flex-1 p-6 overflow-auto">
           {renderContent()}
-        </main>
+        </div>
+      </div>
+
+      {/* Mobile Content */}
+      <div className="lg:hidden p-4">
+        {renderContent()}
       </div>
     </div>
   );

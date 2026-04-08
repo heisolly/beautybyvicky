@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
-import { containerVariants, itemVariants } from '../utils/motion';
+import { motion } from 'framer-motion';
+import { supabase } from '../lib/supabase';
 import { useToast } from '../contexts/ToastContext';
 
 interface BookingData {
   service: {
     id: string;
     name: string;
-    price: string;
-    duration: number;
+    price: number;
+    duration: string;
   } | null;
   date: string;
   time: string;
@@ -21,7 +22,20 @@ interface BookingData {
   };
 }
 
+interface Service {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  duration: string;
+  category: string;
+  image_url?: string;
+  features: string[];
+  is_popular: boolean;
+}
+
 const BookingSystem: React.FC = () => {
+  const location = useLocation();
   const [currentStep, setCurrentStep] = useState(1);
   const [bookingData, setBookingData] = useState<BookingData>({
     service: null,
@@ -35,19 +49,72 @@ const BookingSystem: React.FC = () => {
     }
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
 
-  const services = [
-    { id: 'bridal', name: 'Bridal Makeup', price: '₦150,000', duration: 180 },
-    { id: 'events', name: 'Special Events', price: '₦75,000', duration: 120 },
-    { id: 'photoshoot', name: 'Photoshoot Makeup', price: '₦100,000', duration: 150 },
-    { id: 'lessons', name: 'Makeup Lessons', price: '₦50,000', duration: 90 },
-  ];
+  useEffect(() => {
+    fetchServices();
+    
+    // Check if a service was selected from the service detail page
+    if (location.state?.selectedService) {
+      setBookingData(prev => ({
+        ...prev,
+        service: location.state.selectedService
+      }));
+      setCurrentStep(2); // Skip to date selection
+    }
+  }, [location.state]);
+
+  const fetchServices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      setServices(data || []);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to load services. Please refresh the page.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const timeSlots = [
     '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
     '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'
   ];
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring" as const,
+        stiffness: 100,
+      },
+    },
+  };
 
   // Generate available dates (next 14 days)
   const generateDates = () => {
@@ -65,10 +132,6 @@ const BookingSystem: React.FC = () => {
 
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
-
-  const validatePhone = (phone: string) => {
-    return /^(\+234|0)?[789][01]\d{8}$/.test(phone.replace(/\s/g, ''));
   };
 
   const handleNext = () => {
@@ -95,6 +158,15 @@ const BookingSystem: React.FC = () => {
       return;
     }
 
+    if (!bookingData.service || !bookingData.date || !bookingData.time) {
+      showToast({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please complete all booking steps'
+      });
+      return;
+    }
+
     if (!validateEmail(bookingData.clientInfo.email)) {
       showToast({
         type: 'error',
@@ -104,10 +176,11 @@ const BookingSystem: React.FC = () => {
       return;
     }
 
-    if (bookingData.clientInfo.phone && !validatePhone(bookingData.clientInfo.phone)) {
+    const phoneRegex = /^(\+234|0)?[789][01]\d{8}$/;
+    if (bookingData.clientInfo.phone && !phoneRegex.test(bookingData.clientInfo.phone.replace(/\s/g, ''))) {
       showToast({
         type: 'error',
-        title: 'Invalid Phone',
+        title: 'Invalid Phone Number',
         message: 'Please enter a valid Nigerian phone number'
       });
       return;
@@ -115,15 +188,41 @@ const BookingSystem: React.FC = () => {
 
     setIsSubmitting(true);
     
-    // Simulate booking submission
-    setTimeout(() => {
+    try {
+      // Extract price from database service (already a number)
+      const totalAmount = bookingData.service.price;
+
+      const { data, error } = await supabase
+        .from('bookings')
+        .insert({
+          service_id: bookingData.service.id,
+          client_name: bookingData.clientInfo.name,
+          email: bookingData.clientInfo.email,
+          phone: bookingData.clientInfo.phone,
+          address: bookingData.clientInfo.notes, 
+          date: bookingData.date,
+          time: bookingData.time,
+          status: 'pending',
+          notes: bookingData.clientInfo.notes,
+          total_amount: totalAmount,
+          deposit_paid: false,
+          balance_paid: false,
+          created_at: new Date().toISOString()
+        })
+        .select();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
       showToast({
         type: 'success',
         title: 'Booking Confirmed!',
-        message: 'Your appointment has been successfully booked.'
+        message: `Your appointment for ${bookingData.service.name} has been successfully booked. Reference: ${data[0].id}`
       });
+      
       setIsSubmitting(false);
-      // Reset form
       setCurrentStep(1);
       setBookingData({
         service: null,
@@ -136,7 +235,15 @@ const BookingSystem: React.FC = () => {
           notes: ''
         }
       });
-    }, 2000);
+    } catch (error) {
+      console.error('Booking submission error:', error);
+      showToast({
+        type: 'error',
+        title: 'Booking Failed',
+        message: 'There was an error submitting your booking. Please try again.'
+      });
+      setIsSubmitting(false);
+    }
   };
 
   const renderStep = () => {
@@ -145,31 +252,46 @@ const BookingSystem: React.FC = () => {
         return (
           <div>
             <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6" style={{ fontFamily: 'Outfit, sans-serif' }}>Select Service</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-              {services.map((service) => (
-                <div
-                  key={service.id}
-                  onClick={() => setBookingData({ ...bookingData, service })}
-                  className={`p-4 sm:p-6 border-2 rounded-xl cursor-pointer transition-all ${
-                    bookingData.service?.id === service.id
-                      ? 'border-vicky-accent bg-vicky-accent/5 shadow-lg'
-                      : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-2 sm:mb-3">
-                    <h4 className="font-semibold text-gray-900 text-base sm:text-lg" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                      {service.name}
-                    </h4>
-                    <span className="text-base sm:text-xl font-bold text-vicky-accent" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                      {service.price}
-                    </span>
-                  </div>
-                  <p className="text-xs sm:text-sm text-gray-600" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    {Math.floor(service.duration / 60)}h {service.duration % 60}m duration
-                  </p>
-                </div>
-              ))}
-            </div>
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="w-8 h-8 border-2 border-vicky-accent border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                {services.map((service) => (
+                  <motion.div
+                    key={service.id}
+                    variants={itemVariants}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setBookingData({ ...bookingData, service })}
+                    className={`cursor-pointer p-4 sm:p-6 rounded-2xl border-2 transition-all duration-300 ${
+                      bookingData.service?.id === service.id
+                        ? 'border-vicky-accent bg-vicky-accent/10 shadow-lg'
+                        : 'border-gray-200 hover:border-vicky-accent/30 hover:shadow-md'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <h4 className="text-lg font-semibold text-gray-900" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                        {service.name}
+                      </h4>
+                      {service.is_popular && (
+                        <span className="px-2 py-1 bg-vicky-accent text-white text-xs font-bold rounded-full font-outfit">
+                          Popular
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3 font-outfit line-clamp-2">{service.description}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-bold text-vicky-accent font-outfit">
+                        ₦{service.price.toLocaleString()}
+                      </span>
+                      <span className="text-sm text-gray-500 font-outfit">{service.duration}</span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
         );
 
@@ -338,7 +460,7 @@ const BookingSystem: React.FC = () => {
   return (
     <section className="section-full bg-vicky-bg p-0">
       {/* MOBILE VIEW (Preserved) */}
-      <div className="md:hidden w-full flex flex-col justify-center items-center py-20 px-4 relative">
+      <div className="md:hidden w-full flex flex-col justify-center items-center py-20 px-4 relative min-h-screen">
         <div className="container mx-auto max-w-4xl px-4">
           {/* Header */}
           <motion.div
@@ -431,7 +553,7 @@ const BookingSystem: React.FC = () => {
         </div>
       </div>
 
-      {/* DESKTOP VIEW (Redesign) */}
+      {/* DESKTOP VIEW (Preserved) */}
       <div className="hidden md:flex w-full min-h-screen items-center justify-center py-32 px-12 relative overflow-hidden">
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="grid grid-cols-12 gap-24 items-start">

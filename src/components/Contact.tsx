@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Camera, MessageCircle, ArrowRight } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import { useToast } from '../contexts/ToastContext';
 
 interface ContactFormData {
@@ -92,13 +93,32 @@ const Contact: React.FC = () => {
 
     setIsSubmitting(true);
     
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      // Save to Supabase database
+      const { data, error } = await supabase
+        .from('contact_submissions')
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || null,
+          subject: formData.subject || null,
+          message: formData.message,
+          status: 'new'
+        })
+        .select();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
       showToast({
         type: 'success',
-        title: 'Message Sent!',
-        message: 'We\'ll get back to you soon.'
+        title: 'Message Sent Successfully!',
+        message: `Thank you ${formData.name}! We'll get back to you soon. Reference: ${data[0].id}`
       });
+
+      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -106,14 +126,22 @@ const Contact: React.FC = () => {
         subject: '',
         message: ''
       });
+    } catch (error) {
+      console.error('Contact submission error:', error);
+      showToast({
+        type: 'error',
+        title: 'Submission Failed',
+        message: 'There was an error sending your message. Please try again.'
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 2000);
+    }
   };
 
   return (
     <section className="section-full bg-vicky-bg p-0">
       {/* MOBILE VIEW (Preserved) */}
-      <div className="md:hidden w-full flex flex-col justify-center items-center py-20 px-4 relative">
+      <div className="md:hidden w-full flex flex-col justify-center items-center py-20 px-4 relative min-h-screen">
         <div className="container mx-auto px-4">
           {/* Header */}
           <motion.div

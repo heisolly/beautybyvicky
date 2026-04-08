@@ -44,8 +44,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const storedAdmin = localStorage.getItem('admin_session');
         if (storedAdmin) {
           const adminData = JSON.parse(storedAdmin);
-          // Verify the session is still valid (you could add a token validation here)
-          setAdmin(adminData);
+          // Verify the admin still exists and is active
+          const { data: currentAdmin, error } = await supabase
+            .from('admin_users')
+            .select('*')
+            .eq('id', adminData.id)
+            .eq('is_active', true)
+            .single();
+          
+          if (!error && currentAdmin) {
+            setAdmin(currentAdmin);
+          } else {
+            localStorage.removeItem('admin_session');
+          }
         }
       } catch (error) {
         console.error('Session check failed:', error);
@@ -60,21 +71,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      // For demo purposes, we'll use a simple password check
-      // In production, you'd want to use proper authentication
-      if (password === 'admin123') {
-        // Fetch admin user from database
-        const { data: adminData, error } = await supabase
-          .from('admin_users')
-          .select('*')
-          .eq('email', email)
-          .eq('is_active', true)
-          .single();
+      // Fetch admin user from database
+      const { data: adminData, error } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('email', email)
+        .eq('is_active', true)
+        .single();
 
-        if (error || !adminData) {
-          return { success: false, error: 'Invalid credentials' };
-        }
+      if (error || !adminData) {
+        return { success: false, error: 'Invalid credentials' };
+      }
 
+      // For demo purposes, we'll use simple password comparison
+      // In production, you'd want to use bcrypt.compare() on the server side
+      // For now, we'll check against the known password "242424"
+      if (password === '242424') {
         // Update last login
         await supabase
           .from('admin_users')
@@ -85,11 +97,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.setItem('admin_session', JSON.stringify(adminData));
         return { success: true };
       } else {
-        return { success: false, error: 'Invalid password' };
+        return { success: false, error: 'Invalid credentials' };
       }
     } catch (error) {
       console.error('Login error:', error);
-      return { success: false, error: 'Login failed' };
+      return { success: false, error: 'An error occurred during login' };
     }
   };
 

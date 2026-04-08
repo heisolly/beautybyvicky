@@ -1,31 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
+
+interface PortfolioItem {
+  id: string;
+  title: string;
+  description?: string;
+  category: string;
+  image_url: string;
+  likes?: number;
+  is_featured?: boolean;
+  sort_order?: number;
+}
 
 const Gallery: React.FC = () => {
-  const [selectedImage, setSelectedImage] = useState<number | null>(null);
-
-  const galleryImages = [
-    { id: 1, src: '/hero-model.png', alt: 'Bridal Elegance', category: 'bridal' },
-    { id: 2, src: '/hero.jpg', alt: 'Glamour Night', category: 'glamour' },
-    { id: 3, src: '/collection-beauty-products-with-copy-space.jpg', alt: 'Natural Beauty', category: 'natural' },
-    { id: 4, src: '/closeup-shot-professional-makeup-brushes-tools.jpg', alt: 'Behind the Scenes', category: 'behind' },
-    { id: 5, src: '/hero-model.png', alt: 'Editorial Bold', category: 'editorial' },
-    { id: 6, src: '/hero.jpg', alt: 'Photoshoot Ready', category: 'photoshoot' },
-  ];
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
+  const [activeCategory, setActiveCategory] = useState('all');
 
   const categories = [
     { id: 'all', name: 'All Work' },
     { id: 'bridal', name: 'Bridal' },
     { id: 'glamour', name: 'Glamour' },
     { id: 'natural', name: 'Natural' },
+    { id: 'editorial', name: 'Editorial' },
+    { id: 'photoshoot', name: 'Photoshoot' },
+    { id: 'special-occasions', name: 'Special Occasions' },
+    { id: 'behind-the-scenes', name: 'Behind the Scenes' }
   ];
 
-  const [activeCategory, setActiveCategory] = useState('all');
-  const filteredImages = activeCategory === 'all' 
-    ? galleryImages 
-    : galleryImages.filter(img => img.category === activeCategory);
+  useEffect(() => {
+    fetchPortfolioItems();
+  }, []);
+
+  const fetchPortfolioItems = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('portfolio_items')
+        .select('*')
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setPortfolioItems(data || []);
+    } catch (error) {
+      console.error('Error fetching portfolio items:', error);
+      // Fallback to hardcoded images if there's an error
+      setPortfolioItems([
+        { id: '1', title: 'Bridal Elegance', image_url: '/hero-model.png', category: 'bridal' },
+        { id: '2', title: 'Glamour Night', image_url: '/hero.jpg', category: 'glamour' },
+        { id: '3', title: 'Natural Beauty', image_url: '/collection-beauty-products-with-copy-space.jpg', category: 'natural' },
+        { id: '4', title: 'Behind the Scenes', image_url: '/closeup-shot-professional-makeup-brushes-tools.jpg', category: 'behind-the-scenes' },
+        { id: '5', title: 'Editorial Bold', image_url: '/hero-model.png', category: 'editorial' },
+        { id: '6', title: 'Photoshoot Ready', image_url: '/hero.jpg', category: 'photoshoot' }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredItems = activeCategory === 'all' 
+    ? portfolioItems 
+    : portfolioItems.filter(item => item.category === activeCategory);
 
   return (
     <section className="min-h-screen bg-[#FFF5F7]">
@@ -61,27 +99,35 @@ const Gallery: React.FC = () => {
           </div>
 
           {/* Gallery Grid - Mobile */}
-          <div className="grid grid-cols-1 gap-6">
-            {filteredImages.map((image) => (
-              <div
-                key={image.id}
-                className="group relative aspect-[4/5] overflow-hidden rounded-[2.5rem] shadow-xl glassmorphism p-2 cursor-pointer"
-                onClick={() => setSelectedImage(image.id)}
+          <div className="grid grid-cols-2 gap-4">
+            {filteredItems.map((item) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="relative group cursor-pointer"
+                onClick={() => setSelectedImage(item.image_url)}
               >
-                <div className="relative h-full w-full overflow-hidden rounded-[2rem]">
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                <div className="aspect-square rounded-2xl overflow-hidden bg-white shadow-lg">
+                  <img 
+                    src={item.image_url} 
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-vicky-primary/80 via-vicky-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
-                  <div className="absolute bottom-0 left-0 right-0 p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 opacity-0 group-hover:opacity-100">
-                    <p className="text-vicky-accent font-luxury text-2xl mb-1">{image.category}</p>
-                    <h3 className="text-white text-2xl font-bold font-outfit">{image.alt}</h3>
+                </div>
+                {item.is_featured && (
+                  <div className="absolute top-2 right-2 bg-vicky-gold text-white px-2 py-1 rounded-full text-xs font-bold font-outfit">
+                    Featured
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl">
+                  <div className="absolute bottom-2 left-2 right-2">
+                    <h3 className="text-white font-bold text-sm font-outfit">{item.title}</h3>
+                    <p className="text-white/80 text-xs font-outfit">{item.category}</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -158,9 +204,9 @@ const Gallery: React.FC = () => {
 
           {/* Masonry Gallery Grid */}
           <div className="columns-4 gap-6 mb-16">
-            {filteredImages.map((image, index) => (
+            {filteredItems.map((item, index) => (
               <motion.div
-                key={image.id}
+                key={item.id}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ 
@@ -175,17 +221,27 @@ const Gallery: React.FC = () => {
                   zIndex: 10,
                 }}
                 className="group relative overflow-hidden rounded-3xl shadow-xl cursor-pointer bg-white mb-6 break-inside-avoid"
-                onClick={() => setSelectedImage(image.id)}
+                onClick={() => setSelectedImage(item.image_url)}
                 style={{
                   aspectRatio: index % 3 === 0 ? '3/4' : index % 3 === 1 ? '4/5' : '3/4'
                 }}
               >
                 {/* Image */}
                 <img
-                  src={image.src}
-                  alt={image.alt}
+                  src={item.image_url}
+                  alt={item.title}
                   className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
                 />
+                
+                {/* Featured Badge */}
+                {item.is_featured && (
+                  <div className="absolute top-4 right-4 z-20">
+                    <div className="bg-vicky-gold text-white px-3 py-1 rounded-full text-xs font-bold font-outfit flex items-center space-x-1">
+                      <span>⭐</span>
+                      <span>Featured</span>
+                    </div>
+                  </div>
+                )}
                 
                 {/* Enhanced Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-vicky-primary/95 via-vicky-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
@@ -197,12 +253,24 @@ const Gallery: React.FC = () => {
                       <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
                         <span className="text-xs font-bold text-white">{index + 1}</span>
                       </div>
-                      <p className="text-vicky-accent font-luxury text-xl">{image.category}</p>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white font-outfit">{item.title}</h3>
+                        <p className="text-sm text-white/80 font-outfit capitalize">{item.category?.replace('-', ' ')}</p>
+                      </div>
                     </div>
-                    <h3 className="text-white text-2xl font-bold font-outfit">{image.alt}</h3>
-                    <div className="flex items-center space-x-2 mt-3">
-                      <div className="w-2 h-2 bg-vicky-gold rounded-full" />
-                      <span className="text-white/80 text-sm font-outfit">Click to view</span>
+                    {item.description && (
+                      <p className="text-white/90 text-sm font-outfit line-clamp-2 mb-4">
+                        {item.description}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4 text-white/80 text-xs font-outfit">
+                        <span>❤️ {item.likes || 0}</span>
+                        <span>📸 {item.category}</span>
+                      </div>
+                      <button className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-xs font-bold font-outfit hover:bg-white/30 transition-all">
+                        View Details
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -279,28 +347,19 @@ const Gallery: React.FC = () => {
               exit={{ scale: 0.8, rotate: -3 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="relative max-w-3xl w-full"
+              onClick={(e) => e.stopPropagation()}
             >
               <img
-                src={galleryImages.find(img => img.id === selectedImage)?.src}
-                alt={galleryImages.find(img => img.id === selectedImage)?.alt}
-                className="w-full h-auto max-h-[80vh] object-contain rounded-2xl shadow-2xl border-4 border-white/20"
+                src={selectedImage}
+                alt="Gallery item"
+                className="w-full h-auto rounded-3xl shadow-2xl"
               />
-              
               <button
                 onClick={() => setSelectedImage(null)}
-                className="absolute top-4 right-4 w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all group"
+                className="absolute top-4 right-4 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all"
               >
-                <X className="w-5 h-5 text-white group-hover:rotate-90 transition-transform" />
+                <X className="w-6 h-6" />
               </button>
-
-              <div className="absolute bottom-6 left-6 right-6 text-center">
-                <h3 className="text-xl font-bold text-white font-outfit mb-1">
-                  {galleryImages.find(img => img.id === selectedImage)?.alt}
-                </h3>
-                <p className="text-sm text-vicky-accent font-luxury capitalize">
-                  {galleryImages.find(img => img.id === selectedImage)?.category}
-                </p>
-              </div>
             </motion.div>
           </motion.div>
         )}

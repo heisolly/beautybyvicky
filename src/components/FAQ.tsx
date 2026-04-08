@@ -53,7 +53,7 @@ const FAQ: React.FC = () => {
   return (
     <section className="section-full bg-vicky-bg p-0">
       {/* MOBILE VIEW (Preserved) */}
-      <div className="md:hidden w-full flex flex-col justify-center items-center py-20 px-4 relative">
+      <div className="md:hidden w-full flex flex-col justify-center items-center py-20 px-4 relative min-h-screen">
         <div className="container mx-auto max-w-4xl px-4">
           {/* Header */}
           <motion.div

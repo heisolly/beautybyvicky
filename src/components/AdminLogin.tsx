@@ -23,94 +23,147 @@ const AdminLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-pink-100 to-pink-200 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-pink-500">
-            <Lock className="h-6 w-6 text-white" />
-          </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-vicky-primary">
-            Admin Panel
-          </h2>
-          <p className="mt-2 text-center text-sm text-vicky-primary/60">
-            Sign in to manage your beauty business
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+    <section className="min-h-screen bg-gradient-to-br from-[#FFF5F7] via-white to-[#FCE4EC] flex items-center justify-center p-8">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-20 w-64 h-64 bg-vicky-accent/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 left-20 w-96 h-96 bg-vicky-gold/10 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-6xl mx-auto">
+        <div className="grid grid-cols-12 gap-24 items-center">
+          {/* Left: Admin Sidebar */}
+          <div className="col-span-5 space-y-12">
+            <div className="space-y-6">
+              <span className="font-luxury text-7xl text-vicky-accent block">Admin</span>
+              <h1 className="text-8xl font-bold text-vicky-primary font-outfit leading-[0.8] tracking-tighter">
+                Beauty <br />
+                <span className="text-vicky-gold">Control</span>
+              </h1>
+            </div>
+            
+            <div className="space-y-8">
+              <p className="text-2xl text-vicky-primary/60 font-outfit leading-relaxed">
+                Manage your beauty empire with powerful tools and insights. Transform your business with data-driven decisions.
+              </p>
+
+              <div className="space-y-6 pt-8 border-t border-vicky-gold/20">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-vicky-accent/10 rounded-full flex items-center justify-center">
+                    <Lock className="w-6 h-6 text-vicky-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-vicky-primary font-outfit">Secure Access</h3>
+                    <p className="text-vicky-primary/60 font-outfit">Protected authentication system</p>
+                  </div>
                 </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 focus:z-10 sm:text-sm"
-                  placeholder="Email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
+                
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-vicky-gold/10 rounded-full flex items-center justify-center">
+                    <Mail className="w-6 h-6 text-vicky-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-vicky-primary font-outfit">Business Management</h3>
+                    <p className="text-vicky-primary/60 font-outfit">Complete control over operations</p>
+                  </div>
+                </div>
               </div>
             </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+          </div>
+
+          {/* Right: Login Form */}
+          <div className="col-span-7">
+            <div className="bg-white p-16 rounded-[4rem] shadow-[0_80px_150px_-30px_rgba(45,27,34,0.15)] min-h-[600px] flex flex-col justify-center">
+              <form onSubmit={handleSubmit} className="space-y-8">
+                <div className="space-y-6">
+                  <h2 className="text-4xl font-bold text-vicky-primary font-outfit mb-2">
+                    Welcome Back
+                  </h2>
+                  <p className="text-xl text-vicky-primary/60 font-outfit">
+                    Sign in to manage your beauty business
+                  </p>
                 </div>
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 pl-10 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 focus:z-10 sm:text-sm"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-lg font-medium text-vicky-primary mb-3 font-outfit">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Mail className="h-6 w-6 text-vicky-primary/40" />
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full pl-12 pr-4 py-4 border-2 border-vicky-primary/20 rounded-2xl focus:ring-2 focus:ring-vicky-accent focus:border-transparent outline-none transition-all text-lg font-outfit"
+                        placeholder="admin@beautybyvicky.com"
+                        style={{ fontFamily: 'Outfit, sans-serif' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-lg font-medium text-vicky-primary mb-3 font-outfit">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Lock className="h-6 w-6 text-vicky-primary/40" />
+                      </div>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full pl-12 pr-14 py-4 border-2 border-vicky-primary/20 rounded-2xl focus:ring-2 focus:ring-vicky-accent focus:border-transparent outline-none transition-all text-lg font-outfit"
+                        placeholder="Enter your password"
+                        style={{ fontFamily: 'Outfit, sans-serif' }}
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-4 flex items-center"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-6 w-6 text-vicky-primary/40 hover:text-vicky-primary transition-colors" />
+                        ) : (
+                          <Eye className="h-6 w-6 text-vicky-primary/40 hover:text-vicky-primary transition-colors" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-vicky-accent text-white py-5 px-8 rounded-2xl text-xl font-bold font-outfit shadow-xl hover:bg-vicky-primary hover:shadow-vicky-primary/30 transition-all duration-300 disabled:opacity-50 disabled:translate-y-0"
+                  style={{ fontFamily: 'Outfit, sans-serif' }}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
+                  {isLoading ? (
+                    <span className="flex items-center justify-center">
+                      <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin mr-3" />
+                      Signing In...
+                    </span>
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
+                    'Sign In to Admin Panel'
                   )}
                 </button>
-              </div>
+
+                <div className="text-center pt-6 border-t border-vicky-gold/20">
+                  <p className="text-sm text-vicky-primary/50 font-outfit">
+                    Demo Credentials: admin@beautybyvicky.com / 242424
+                  </p>
+                </div>
+              </form>
             </div>
           </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-pink-500 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
-
-          <div className="text-center">
-            <p className="text-xs text-vicky-primary/60">
-              Demo: admin@beautybyvicky.com / admin123
-            </p>
-          </div>
-        </form>
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 

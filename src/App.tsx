@@ -10,6 +10,7 @@ import SEO from './components/SEO';
 // Lazy load pages for better performance
 const HomePage = lazy(() => import('./pages/HomePage'));
 const ServicesPage = lazy(() => import('./pages/ServicesPage'));
+const ServiceDetailPage = lazy(() => import('./pages/ServiceDetailPage'));
 const GalleryPage = lazy(() => import('./pages/GalleryPage'));
 const BookingPage = lazy(() => import('./pages/BookingPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
@@ -22,23 +23,35 @@ const App: React.FC = () => {
       <ErrorBoundary>
         <ToastProvider>
           <Router>
-            <div className="h-screen flex flex-col overflow-hidden">
-              <SEO />
-              <Header />
-              <main className="flex-1 overflow-hidden">
-                <Suspense fallback={<Loading fullScreen text="Loading beauty..." />}>
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/services" element={<ServicesPage />} />
-                    <Route path="/gallery" element={<GalleryPage />} />
-                    <Route path="/booking" element={<BookingPage />} />
-                    <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/faq" element={<FAQPage />} />
-                    <Route path="/admin" element={<AdminPage />} />
-                  </Routes>
+            <SEO />
+            <Routes>
+              {/* Admin route - standalone without header */}
+              <Route path="/admin/*" element={
+                <Suspense fallback={<Loading fullScreen text="Loading admin..." />}>
+                  <AdminPage />
                 </Suspense>
-              </main>
-            </div>
+              } />
+              
+              {/* Public routes with header */}
+              <Route path="/*" element={
+                <div className="min-h-screen flex flex-col">
+                  <Header />
+                  <main className="flex-1">
+                    <Suspense fallback={<Loading fullScreen text="Loading beauty..." />}>
+                      <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/services" element={<ServicesPage />} />
+                        <Route path="/services/:id" element={<ServiceDetailPage />} />
+                        <Route path="/gallery" element={<GalleryPage />} />
+                        <Route path="/booking" element={<BookingPage />} />
+                        <Route path="/contact" element={<ContactPage />} />
+                        <Route path="/faq" element={<FAQPage />} />
+                      </Routes>
+                    </Suspense>
+                  </main>
+                </div>
+              } />
+            </Routes>
           </Router>
         </ToastProvider>
       </ErrorBoundary>

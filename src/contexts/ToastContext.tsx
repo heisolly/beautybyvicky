@@ -23,6 +23,10 @@ interface ToastProviderProps {
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastProps[]>([]);
 
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  }, []);
+
   const showToast = useCallback((toast: Omit<ToastProps, 'id' | 'onClose'>) => {
     const id = Date.now().toString();
     const newToast: ToastProps = {
@@ -32,11 +36,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     };
     
     setToasts(prev => [...prev, newToast]);
-  }, []);
-
-  const removeToast = useCallback((id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  }, []);
+  }, [removeToast]);
 
   return (
     <ToastContext.Provider value={{ showToast, removeToast }}>

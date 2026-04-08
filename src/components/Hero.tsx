@@ -92,7 +92,7 @@ const Hero: React.FC = () => {
             </motion.div>
 
             {/* Description and CTA */}
-            <div className="max-w-2xl space-y-8 px-4">
+            <div className="max-w-2xl space-y-2 px-4">
               <motion.p variants={itemVariants} className="text-lg text-vicky-primary/70 leading-relaxed font-outfit">
                 Discover the transformative power of professional makeup artistry with <span className="font-handwriting text-2xl text-vicky-accent">Beauty by Vicky's</span>. 
                 Elevating natural beauty in Lagos.

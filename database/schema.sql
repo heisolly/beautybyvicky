@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS testimonials (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   client_name VARCHAR(100) NOT NULL,
   rating INTEGER CHECK (rating >= 1 AND rating <= 5),
-  testimonial TEXT NOT NULL,
+  message TEXT NOT NULL,
   service_type VARCHAR(100),
   image_url TEXT,
   is_featured BOOLEAN DEFAULT FALSE,
@@ -115,18 +115,18 @@ CREATE TABLE IF NOT EXISTS admin_users (
 
 -- Insert initial services data
 INSERT INTO services (name, description, price, duration, category, features, is_popular) VALUES
-('Bridal Glam', 'Complete bridal makeup transformation with flawless long-lasting finish', 350.00, '2-3 hours', 'bridal', ARRAY['Pre-bridal consultation', 'Waterproof makeup', 'False lashes included', 'Touch-up kit', 'Trial session available'], true),
-('Soft/Natural Glam', 'Enhanced natural beauty with soft, radiant makeup look', 150.00, '1 hour', 'natural', ARRAY['Skin preparation', 'Natural contour', 'Soft glam finish', 'Basic lashes', 'Skincare tips'], false),
-('Full Editorial/Photoshoot', 'High-impact editorial makeup perfect for photoshoots and special events', 400.00, '2 hours', 'editorial', ARRAY['Creative makeup design', 'Professional contour', 'Dramatic lashes', 'Color matching', 'Photography consultation'], false),
-('Home Service/Travel', 'Convenient at-home makeup service with travel included', 100.00, 'Varies', 'travel', ARRAY['Travel to your location', 'Portable makeup kit', 'Flexible timing', 'Group discounts available', 'Emergency services'], false)
+('Bridal Makeup', 'Complete bridal makeup transformation with flawless long-lasting finish', 150000.00, '3 hours', 'bridal', ARRAY['Pre-bridal consultation', 'Waterproof makeup', 'False lashes included', 'Touch-up kit', 'Trial session available'], true),
+('Special Events', 'Professional makeup for birthdays, anniversaries, and red carpet events', 75000.00, '2 hours', 'events', ARRAY['Custom look design', 'False lashes', 'Waterproof finish', '2-hour service'], false),
+('Photoshoot Makeup', 'Camera-ready makeup designed for professional photography', 100000.00, '2.5 hours', 'photoshoot', ARRAY['HD makeup', 'Contouring', 'Color correction', 'Multiple looks'], false),
+('Makeup Lessons', 'Personalized makeup tutorials to master your beauty routine', 50000.00, '1.5 hours', 'lessons', ARRAY['Product recommendations', 'Technique training', 'Personalized chart', 'Take-home guide'], false)
 ON CONFLICT DO NOTHING;
 
 -- Insert initial FAQ data
 INSERT INTO faq_items (question, answer, category, sort_order) VALUES
-('Do you travel to venues?', 'Yes! I offer home service and can travel to your venue for an additional fee. I serve the Greater Los Angeles area and can discuss travel options for locations outside my standard service area.', 'services', 1),
-('What brands are in your kit?', 'I use only premium, professional-grade brands including MAC Cosmetics, NARS, Fenty Beauty, Charlotte Tilbury, Anastasia Beverly Hills, and Huda Beauty. All products are cruelty-free and suitable for various skin types.', 'products', 2),
-('How do I prepare my skin?', 'For best results, please arrive with a clean, moisturized face. Avoid using heavy skincare products or exfoliants 24 hours before your appointment.', 'preparation', 3),
-('What is your cancellation policy?', 'Cancellations must be made at least 48 hours in advance for a full refund of your deposit. Cancellations within 48 hours will forfeit the deposit.', 'booking', 4)
+('How far in advance should I book my appointment?', 'We recommend booking at least 2-3 weeks in advance for regular services and 2-3 months for bridal makeup to ensure availability. However, we can sometimes accommodate last-minute requests, so feel free to reach out!', 'booking', 1),
+('Do you offer on-location services?', 'Yes! We offer on-location services for bridal makeup and special events within Lagos. Additional travel fees may apply for locations outside the mainland. Please contact us to discuss your specific location and requirements.', 'services', 2),
+('What makeup products do you use?', 'We use premium, professional-grade makeup products from brands like MAC, NARS, Fenty Beauty, and Dior. All products are cruelty-free and suitable for various skin types. We can accommodate specific product preferences or allergies.', 'products', 3),
+('What is your cancellation policy?', 'We require 48 hours\' notice for cancellations to receive a full refund. Cancellations within 48 hours are subject to a 50% fee. No-shows will be charged the full amount.', 'booking', 4)
 ON CONFLICT DO NOTHING;
 
 -- Create indexes for better performance
@@ -182,6 +182,3 @@ CREATE POLICY "Users can insert contact submissions" ON contact_submissions
 -- Public can insert newsletter subscribers
 CREATE POLICY "Users can insert newsletter subscribers" ON newsletter_subscribers
     FOR INSERT WITH CHECK (true);
-
--- Admin users can read all data (this would be implemented with proper auth)
--- Note: In production, you'd want to implement proper authentication with Supabase Auth

@@ -50,7 +50,11 @@
 
 @layer components {
   .section-full {
-    @apply min-h-screen flex flex-col justify-center items-center py-20 px-4 relative;
+    @apply min-h-screen py-20 px-4 relative;
+  }
+
+  .section-scrollable {
+    @apply py-32 px-4 relative;
   }
 
   .glassmorphism {
