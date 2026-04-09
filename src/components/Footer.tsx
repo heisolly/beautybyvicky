@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
           {/* Brand */}
           <div className="space-y-6">
             <Link to="/" className="inline-block">
-              <img src="/logo.png" alt="Beauty by Vicky" className="h-16 w-auto object-contain brightness-0 invert" />
+              <img src="/logo.png" alt="BeautybyVicky" className="h-16 w-auto object-contain brightness-0 invert" />
             </Link>
             <p className="text-white/60 font-outfit leading-relaxed">
               Elevating beauty through professional artistry. Based in the heart of Lagos, Nigeria.
@@ -66,7 +66,7 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-white/40 text-sm font-outfit">
-          <p>© 2026 Beauty by Vicky's. All rights reserved.</p>
+          <p>© 2026 BeautybyVicky. All rights reserved.</p>
           <p className="font-luxury text-2xl text-vicky-accent/60">Artistry in every stroke</p>
         </div>
       </div>

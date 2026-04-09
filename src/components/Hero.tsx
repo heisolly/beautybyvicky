@@ -36,7 +36,7 @@ const Hero: React.FC = () => {
         
         {/* Floating handwriting elements for mobile flair */}
         <div className="absolute top-20 left-10 opacity-20 pointer-events-none">
-          <span className="text-6xl font-luxury text-vicky-accent -rotate-12 block">Beauty</span>
+          <span className="text-6xl font-luxury text-vicky-accent -rotate-12 block">BeautybyVicky</span>
         </div>
         <div className="absolute bottom-40 right-10 opacity-20 pointer-events-none">
           <span className="text-6xl font-handwriting text-vicky-soft rotate-12 block">Artistry</span>
@@ -59,11 +59,11 @@ const Hero: React.FC = () => {
                 variants={itemVariants}
                 className="text-5xl sm:text-7xl font-bold text-vicky-primary leading-[0.9] font-outfit"
               >
-                Pushing <br />
-                <span className="text-vicky-accent font-luxury italic normal-case block">Artistry</span>
+                Redefining <br />
+                <span className="text-vicky-accent font-luxury italic normal-case block">Beauty</span>
                 <br />
                 <span className="relative">
-                  Boundaries
+                  Through Artistry
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: '100%' }}
@@ -83,7 +83,7 @@ const Hero: React.FC = () => {
               <div className="absolute inset-0 bg-vicky-accent/5 rounded-[3rem] -rotate-3 transform" />
               <div className="relative h-full w-full overflow-hidden rounded-[2.5rem] shadow-2xl border-4 border-white">
                 <img
-                  src="/hero-model.png"
+                  src="/hero.jpeg"
                   alt="Luxury Makeup"
                   className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
                 />
@@ -94,8 +94,9 @@ const Hero: React.FC = () => {
             {/* Description and CTA */}
             <div className="max-w-2xl space-y-2 px-4">
               <motion.p variants={itemVariants} className="text-lg text-vicky-primary/70 leading-relaxed font-outfit">
-                Discover the transformative power of professional makeup artistry with <span className="font-handwriting text-2xl text-vicky-accent">Beauty by Vicky's</span>. 
-                Elevating natural beauty in Lagos.
+                Creating timeless glam for the modern woman, defined by precision, attention to detail, and an exceptional experience.
+                <br />
+                <span className="font-handwriting text-2xl text-vicky-accent block mt-2">Let's create something unforgettable.</span>
               </motion.p>
 
               <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -130,7 +131,7 @@ const Hero: React.FC = () => {
               <p className="text-[8px] uppercase tracking-widest text-vicky-primary/50">Rating</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-vicky-accent">8yr+</p>
+              <p className="text-lg font-bold text-vicky-accent">5yr+</p>
               <p className="text-[8px] uppercase tracking-widest text-vicky-primary/50">Experience</p>
             </div>
           </div>
@@ -165,9 +166,9 @@ const Hero: React.FC = () => {
               </motion.div>
               
               <h1 className="text-7xl lg:text-8xl font-bold text-vicky-primary leading-[1.1] font-outfit">
-                Pushing the <br />
-                <span className="text-vicky-accent">Boundary</span> <br />
-                of Artistry
+                Redefining <br />
+                <span className="text-vicky-accent">Beauty</span> <br />
+                Through Artistry
               </h1>
             </div>
 
@@ -177,7 +178,9 @@ const Hero: React.FC = () => {
               transition={{ delay: 0.4, duration: 0.8 }}
               className="text-lg text-vicky-primary/80 leading-relaxed font-outfit max-w-lg"
             >
-              Experience the pinnacle of professional makeup artistry in Lagos. Our expert artists specialize in creating stunning, personalized looks that enhance your natural beauty and leave you feeling confident for any occasion.
+              Creating timeless glam for the modern woman, defined by precision, attention to detail, and an exceptional experience.
+              <br />
+              <span className="font-handwriting text-2xl text-vicky-accent block mt-2">Let's create something unforgettable.</span>
             </motion.p>
 
             <motion.div
@@ -201,7 +204,7 @@ const Hero: React.FC = () => {
                 </div>
                 <div className="w-px h-8 bg-vicky-primary/20" />
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-vicky-accent">8yr+</p>
+                  <p className="text-2xl font-bold text-vicky-accent">5yr+</p>
                   <p className="text-xs uppercase tracking-wider">Experience</p>
                 </div>
               </div>
@@ -263,7 +266,7 @@ const Hero: React.FC = () => {
               <div className="absolute inset-0 bg-vicky-accent/5 rounded-[3rem] -rotate-3 transform" />
               <div className="relative h-full w-full overflow-hidden rounded-[2rem] shadow-2xl border-4 border-white">
                 <img
-                  src="/hero-model.png"
+                  src="/hero.jpeg"
                   alt="Luxury Makeup Artistry"
                   className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
                 />

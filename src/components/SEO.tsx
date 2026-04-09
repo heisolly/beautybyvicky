@@ -11,10 +11,10 @@ interface SEOProps {
 }
 
 const SEO: React.FC<SEOProps> = ({
-  title = 'Beauty by Vicky\'s - Professional Makeup Artist in Lagos',
-  description = 'Discover the transformative power of professional makeup artistry with Beauty by Vicky\'s. Luxury makeup services for bridal, events, photoshoots, and lessons in the heart of Lagos.',
+  title = 'BeautybyVicky - Professional Makeup Artist in Lagos',
+  description = 'Discover the transformative power of professional makeup artistry with BeautybyVicky. Luxury makeup services for bridal, events, photoshoots, and lessons in the heart of Lagos.',
   keywords = 'makeup artist, Lagos, bridal makeup, professional makeup, beauty services, makeup lessons, events makeup, photoshoot makeup',
-  ogImage = '/hero-model.png',
+  ogImage = '/hero.jpeg',
   ogUrl,
   canonical,
   type = 'website'
