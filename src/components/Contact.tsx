@@ -49,7 +49,7 @@ const Contact: React.FC = () => {
     location: 'Lagos, Nigeria',
     hours: 'Mon-Sat: 9AM-6PM, Sun: 10AM-4PM',
     instagram: '@beautybyvicky___',
-    facebook: 'BeautyByVickys',
+    facebook: 'BeautyByVicky',
     twitter: '@beautybyvicky'
   };
 

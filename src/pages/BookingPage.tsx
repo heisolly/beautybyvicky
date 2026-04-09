@@ -6,8 +6,8 @@ const BookingPage: React.FC = () => {
   return (
     <>
       <SEO 
-        title="Book Your Session - Beauty by Vicky's"
-        description="Schedule your makeup appointment with Beauty by Vicky's. Choose from bridal, special events, photoshoot, and makeup lesson services."
+        title="Book Your Session - Beauty by Vicky"
+        description="Schedule your makeup appointment with Beauty by Vicky. Choose from bridal, special events, photoshoot, and makeup lesson services."
         keywords="book makeup appointment, makeup booking Lagos, bridal makeup booking, professional makeup scheduling"
         ogUrl="/booking"
       />

@@ -6,8 +6,8 @@ const FAQPage: React.FC = () => {
   return (
     <>
       <SEO 
-        title="FAQ - Beauty by Vicky's"
-        description="Frequently asked questions about Beauty by Vicky's makeup services, pricing, booking process, and what to expect during your session."
+        title="FAQ - Beauty by Vicky"
+        description="Frequently asked questions about Beauty by Vicky makeup services, pricing, booking process, and what to expect during your session."
         keywords="makeup artist FAQ, makeup questions, bridal makeup FAQ, beauty services FAQ, makeup pricing"
         ogUrl="/faq"
       />

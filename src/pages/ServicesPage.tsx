@@ -6,7 +6,7 @@ const ServicesPage: React.FC = () => {
   return (
     <>
       <SEO 
-        title="Our Services - Beauty by Vicky's"
+        title="Our Services - Beauty by Vicky"
         description="Explore our premium makeup services including bridal makeup, special events, photoshoots, and professional makeup lessons in Lagos."
         keywords="bridal makeup Lagos, events makeup, photoshoot makeup, makeup lessons, professional makeup services"
         ogUrl="/services"

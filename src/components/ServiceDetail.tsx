@@ -92,7 +92,7 @@ const ServiceDetail: React.FC = () => {
   return (
     <>
       <SEO 
-        title={`${service.name} - Beauty by Vicky's`}
+        title={`${service.name} - Beauty by Vicky`}
         description={service.description}
         keywords={`${service.name}, makeup services Lagos, professional makeup, ${service.category}`}
         ogUrl={`/services/${id}`}

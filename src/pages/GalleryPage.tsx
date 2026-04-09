@@ -7,7 +7,7 @@ const GalleryPage: React.FC = () => {
   return (
     <>
       <SEO 
-        title="Gallery - Beauty by Vicky's"
+        title="Gallery - Beauty by Vicky"
         description="Explore our portfolio of stunning makeup transformations. From bridal elegance to glamour looks, see our artistry in action."
         keywords="makeup gallery, bridal makeup portfolio, glamour makeup photos, makeup artist portfolio"
         ogUrl="/gallery"
@@ -19,7 +19,7 @@ const GalleryPage: React.FC = () => {
           <div className="container mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-vicky-primary mb-6 font-outfit">Ready for Your Transformation?</h2>
             <p className="text-lg text-vicky-primary/70 mb-8 font-outfit max-w-2xl mx-auto">
-              Join our satisfied clients who have experienced the Beauty by Vicky's difference. 
+              Join our satisfied clients who have experienced the Beauty by Vicky difference. 
               Every look is customized to highlight your unique beauty.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

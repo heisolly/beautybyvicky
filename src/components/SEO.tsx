@@ -11,15 +11,15 @@ interface SEOProps {
 }
 
 const SEO: React.FC<SEOProps> = ({
-  title = 'BeautybyVicky - Professional Makeup Artist in Lagos',
-  description = 'Discover the transformative power of professional makeup artistry with BeautybyVicky. Luxury makeup services for bridal, events, photoshoots, and lessons in the heart of Lagos.',
+  title = 'Beauty by Vicky - Professional Makeup Artist in Lagos',
+  description = 'Discover the transformative power of professional makeup artistry with Beauty by Vicky. Luxury makeup services for bridal, events, photoshoots, and lessons in the heart of Lagos.',
   keywords = 'makeup artist, Lagos, bridal makeup, professional makeup, beauty services, makeup lessons, events makeup, photoshoot makeup',
   ogImage = '/hero.jpeg',
   ogUrl,
   canonical,
   type = 'website'
 }) => {
-  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://beautybyvickys.com';
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://beautybyvicky.com';
   const fullUrl = ogUrl || siteUrl;
   const canonicalUrl = canonical || fullUrl;
 
@@ -39,7 +39,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta property="og:image" content={`${siteUrl}${ogImage}`} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      <meta property="og:site_name" content="Beauty by Vicky's" />
+      <meta property="og:site_name" content="Beauty by Vicky" />
 
       {/* Twitter */}
       <meta property="twitter:card" content="summary_large_image" />
@@ -49,7 +49,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta property="twitter:image" content={`${siteUrl}${ogImage}`} />
 
       {/* Additional Meta Tags */}
-      <meta name="author" content="Beauty by Vicky's" />
+      <meta name="author" content="Beauty by Vicky" />
       <meta name="robots" content="index, follow" />
       <meta name="language" content="English" />
       <meta name="geo.region" content="NG-LA" />

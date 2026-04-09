@@ -36,7 +36,7 @@ const Hero: React.FC = () => {
         
         {/* Floating handwriting elements for mobile flair */}
         <div className="absolute top-20 left-10 opacity-20 pointer-events-none">
-          <span className="text-6xl font-luxury text-vicky-accent -rotate-12 block">BeautybyVicky</span>
+          <span className="text-6xl font-luxury text-vicky-accent -rotate-12 block">Beauty by Vicky</span>
         </div>
         <div className="absolute bottom-40 right-10 opacity-20 pointer-events-none">
           <span className="text-6xl font-handwriting text-vicky-soft rotate-12 block">Artistry</span>

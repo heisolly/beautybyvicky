@@ -6,7 +6,7 @@ const HomePage: React.FC = () => {
   return (
     <>
       <SEO 
-        title="BeautybyVicky — Luxury Makeup Artist in Lagos"
+        title="Beauty by Vicky — Luxury Makeup Artist in Lagos"
         description="Experience the finest makeup artistry in Lagos. Specializing in bridal, editorial, and glam looks that enhance your natural beauty."
       />
       <div className="min-h-screen">
@@ -15,7 +15,7 @@ const HomePage: React.FC = () => {
         {/* Why Choose Section */}
         <section className="section-scrollable bg-white">
           <div className="container mx-auto text-center">
-            <h2 className="text-4xl font-bold text-vicky-primary mb-6 font-outfit">Why Choose Beauty by Vicky's?</h2>
+            <h2 className="text-4xl font-bold text-vicky-primary mb-6 font-outfit">Why Choose Beauty by Vicky?</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
               <div className="text-center space-y-4">
                 <div className="w-16 h-16 bg-vicky-accent/10 rounded-full flex items-center justify-center mx-auto">
@@ -49,7 +49,7 @@ const HomePage: React.FC = () => {
               <h2 className="text-4xl font-bold text-vicky-primary mb-8 font-outfit">Meet Vicky</h2>
               <div className="bg-white rounded-3xl p-8 md:p-12 shadow-xl">
                 <p className="text-xl text-vicky-primary/80 leading-relaxed font-outfit mb-6">
-                  Hi, I'm Vicky, the lead makeup artist at BeautybyVicky. With over 5 years of experience, I help women look and feel their best. I specialize in soft glam to bold bridal looks, creating flawless, timeless makeup that enhances your natural beauty and stands out both in person and in photos.
+                  Hi, I'm Vicky, the lead makeup artist at Beauty by Vicky. With over 5 years of experience, I help women look and feel their best. I specialize in soft glam to bold bridal looks, creating flawless, timeless makeup that enhances your natural beauty and stands out both in person and in photos.
                 </p>
                 <p className="text-lg text-vicky-primary/70 leading-relaxed font-outfit">
                   My passion is creating personalized beauty experiences that celebrate your unique features and make you feel confident for any occasion.
