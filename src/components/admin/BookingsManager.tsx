@@ -339,7 +339,7 @@ const BookingsManager: React.FC = () => {
               {booking.total_amount && (
                 <div className="flex items-center space-x-2">
                   <DollarSign className="w-4 h-4 text-vicky-accent" />
-                  <span className="text-lg font-bold text-vicky-primary font-outfit">${booking.total_amount}</span>
+                  <span className="text-lg font-bold text-vicky-primary font-outfit">₦{booking.total_amount.toLocaleString()}</span>
                 </div>
               )}
             </div>
@@ -527,7 +527,7 @@ const BookingsManager: React.FC = () => {
                         <p className="text-sm font-bold text-vicky-primary font-outfit">Total Amount</p>
                         <div className="flex items-center space-x-2">
                           <DollarSign className="w-4 h-4 text-vicky-accent" />
-                          <p className="text-lg font-bold text-vicky-primary font-outfit">${selectedBooking.total_amount}</p>
+                          <p className="text-lg font-bold text-vicky-primary font-outfit">₦{selectedBooking.total_amount.toLocaleString()}</p>
                         </div>
                       </div>
                     )}
