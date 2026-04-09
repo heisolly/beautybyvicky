@@ -41,9 +41,77 @@ const AdminDashboard: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
 
+  const [messages, setMessages] = useState<any[]>([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'messages' && messages.length === 0) {
+      fetchMessages();
+    }
+  }, [activeTab]);
+
+  const fetchMessages = async () => {
+    try {
+      setLoadingMessages(true);
+      const { data, error } = await supabase
+        .from('contact_submissions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setMessages(data || []);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  const markMessageAsRead = async (messageId: string) => {
+    try {
+      const { error } = await supabase
+        .from('contact_submissions')
+        .update({ status: 'read' })
+        .eq('id', messageId);
+
+      if (error) throw error;
+      
+      // Update local state
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId ? { ...msg, status: 'read' } : msg
+      ));
+      
+      // Refresh stats
+      fetchDashboardData();
+    } catch (error) {
+      console.error('Error marking message as read:', error);
+    }
+  };
+
+  const deleteMessage = async (messageId: string) => {
+    if (!confirm('Are you sure you want to delete this message?')) return;
+    
+    try {
+      const { error } = await supabase
+        .from('contact_submissions')
+        .delete()
+        .eq('id', messageId);
+
+      if (error) throw error;
+      
+      // Update local state
+      setMessages(prev => prev.filter(msg => msg.id !== messageId));
+      
+      // Refresh stats
+      fetchDashboardData();
+    } catch (error) {
+      console.error('Error deleting message:', error);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -242,14 +310,80 @@ const AdminDashboard: React.FC = () => {
           <h3 className="text-2xl md:text-3xl font-bold text-vicky-primary font-outfit">Messages</h3>
           <p className="text-sm md:text-base text-vicky-primary/60 font-outfit">Customer inquiries and contact forms</p>
         </div>
-        {stats.unreadMessages > 0 && (
-          <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold font-outfit">
-            {stats.unreadMessages} Unread
-          </span>
-        )}
+        <div className="flex items-center space-x-3">
+          {stats.unreadMessages > 0 && (
+            <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold font-outfit">
+              {stats.unreadMessages} Unread
+            </span>
+          )}
+          <button
+            onClick={fetchMessages}
+            className="bg-vicky-accent text-white px-4 py-2 rounded-xl font-bold font-outfit hover:bg-vicky-primary transition-all text-sm"
+          >
+            Refresh
+          </button>
+        </div>
       </div>
+      
       <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6">
-        <p className="text-vicky-primary/60 font-outfit">Message management features coming soon...</p>
+        {loadingMessages ? (
+          <div className="flex justify-center py-8">
+            <div className="w-8 h-8 border-4 border-vicky-accent border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="text-center py-8">
+            <MessageSquare className="w-12 h-12 text-vicky-primary/30 mx-auto mb-4" />
+            <p className="text-vicky-primary/60 font-outfit">No messages yet</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {messages.map((message) => (
+              <div 
+                key={message.id} 
+                className={`border rounded-xl p-4 transition-all ${
+                  message.status === 'new' 
+                    ? 'border-vicky-accent bg-vicky-accent/5' 
+                    : 'border-vicky-primary/20 bg-gray-50'
+                }`}
+              >
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-3 sm:space-y-0">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <h4 className="font-bold text-vicky-primary font-outfit">{message.name}</h4>
+                      <span className="text-sm text-vicky-primary/60 font-outfit">{message.email}</span>
+                      {message.status === 'new' && (
+                        <span className="bg-vicky-accent text-white text-xs px-2 py-1 rounded-full font-bold font-outfit">
+                          New
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-vicky-primary/80 font-outfit mb-2">{message.message}</p>
+                    <p className="text-xs text-vicky-primary/50 font-outfit">
+                      {new Date(message.created_at).toLocaleDateString()} at {new Date(message.created_at).toLocaleTimeString()}
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    {message.status === 'new' && (
+                      <button
+                        onClick={() => markMessageAsRead(message.id)}
+                        className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm font-bold font-outfit hover:bg-blue-700 transition-all"
+                      >
+                        Mark as Read
+                      </button>
+                    )}
+                    <button
+                      onClick={() => deleteMessage(message.id)}
+                      className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm font-bold font-outfit hover:bg-red-700 transition-all"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

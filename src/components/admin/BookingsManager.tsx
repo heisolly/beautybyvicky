@@ -191,6 +191,35 @@ const BookingsManager: React.FC = () => {
     updateBooking(editingBooking);
   };
 
+  const deleteBooking = async (bookingId: string) => {
+    if (!confirm('Are you sure you want to delete this booking? This action cannot be undone.')) return;
+    
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .delete()
+        .eq('id', bookingId);
+
+      if (error) throw error;
+      
+      showToast({
+        type: 'success',
+        title: 'Booking Deleted',
+        message: 'Booking has been deleted successfully.'
+      });
+      
+      await fetchData();
+      setSelectedBooking(null);
+    } catch (error) {
+      console.error('Error deleting booking:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to delete booking. Please try again.'
+      });
+    }
+  };
+
   const handleCancelEdit = () => {
     setEditingBooking(null);
   };
@@ -409,6 +438,12 @@ const BookingsManager: React.FC = () => {
                     Cancel
                   </button>
                 )}
+                <button
+                  onClick={() => deleteBooking(booking.id)}
+                  className="px-3 py-2 bg-red-600 text-white rounded-xl font-bold font-outfit hover:bg-red-700 transition-all duration-300"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
