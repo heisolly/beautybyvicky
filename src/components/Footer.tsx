@@ -69,6 +69,42 @@ const Footer: React.FC = () => {
           <p>© 2026 Beauty by Vicky. All rights reserved.</p>
           <p className="font-luxury text-2xl text-vicky-accent/60">Artistry in every stroke</p>
         </div>
+        
+        {/* Watermark */}
+        <div className="pt-4 text-center">
+          <p className="text-white/20 text-xs font-outfit">
+            Made with love by{' '}
+            <button
+              onClick={() => {
+                // Create contact API call
+                const contactData = {
+                  name: 'Contact from Beauty by Vicky Website',
+                  email: 'contact@beautybyvicky.com',
+                  message: 'User clicked on Olly watermark - interested in developer contact',
+                  source: 'footer_watermark'
+                };
+                
+                // Send to contact API
+                fetch('/api/contact', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(contactData)
+                }).then(() => {
+                  // Open WhatsApp or email after API call
+                  window.open('https://wa.me/2348012345678?text=Hi%20Olly,%20I%20found%20you%20through%20the%20Beauty%20by%20Vicky%20website!', '_blank');
+                }).catch(() => {
+                  // Fallback if API fails
+                  window.open('https://wa.me/2348012345678?text=Hi%20Olly,%20I%20found%20you%20through%20the%20Beauty%20by%20Vicky%20website!', '_blank');
+                });
+              }}
+              className="text-vicky-accent/40 hover:text-vicky-accent/60 transition-colors underline underline-offset-2 decoration-vicky-accent/30 hover:decoration-vicky-accent/60"
+            >
+              Olly
+            </button>
+          </p>
+        </div>
       </div>
     </footer>
   );
