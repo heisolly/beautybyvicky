@@ -232,23 +232,56 @@ const GalleryManager: React.FC = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // For now, we'll use a placeholder URL. In a real implementation, 
-    // you would upload to a service like Supabase Storage
-    const placeholderUrl = `/uploads/${Date.now()}-${file.name}`;
-    
-    if (imageType === 'main') {
-      setFormData({ ...formData, image_url: placeholderUrl });
-    } else if (imageType === 'before') {
-      setFormData({ ...formData, before_image_url: placeholderUrl });
-    } else if (imageType === 'after') {
-      setFormData({ ...formData, after_image_url: placeholderUrl });
-    }
+    try {
+      // Show loading state
+      showToast({
+        type: 'info',
+        title: 'Uploading Image',
+        message: 'Please wait while the image is being uploaded...'
+      });
 
-    showToast({
-      type: 'success',
-      title: 'Image Uploaded',
-      message: 'Image has been uploaded successfully.'
-    });
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `gallery/${fileName}`;
+
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath);
+
+      // Update form data with the actual URL
+      if (imageType === 'main') {
+        setFormData({ ...formData, image_url: publicUrl });
+      } else if (imageType === 'before') {
+        setFormData({ ...formData, before_image_url: publicUrl });
+      } else if (imageType === 'after') {
+        setFormData({ ...formData, after_image_url: publicUrl });
+      }
+
+      showToast({
+        type: 'success',
+        title: 'Image Uploaded',
+        message: 'Image has been uploaded successfully.'
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      showToast({
+        type: 'error',
+        title: 'Upload Failed',
+        message: 'Failed to upload image. Please try again.'
+      });
+    }
   };
 
   const toggleFeatured = async (id: string, currentFeatured: boolean) => {
